@@ -1,0 +1,383 @@
+########## WEBSERV SOCKETS ETC #########
+
+strerror :  #include <string.h>
+
+	char *strerror(int errnum);
+
+	return error info
+
+gai_strerror : #include <sys/socket.h>
+
+	const char *gai_strerror(int ecode);
+
+	return a text string describing an error value for the getaddrinfo() and getnameinfo()
+
+
+socketpair : #include <sys/socket.h>
+
+	int socketpair(int domain, int type, int protocol, int sv[2]);
+
+	socketpair() call creates an unnamed pair of connected sockets
+	On success, zero is returned.  On error, -1 is returned
+
+htons, htonl, ntohs, ntohl :
+
+	#include <arpa/inet.h>
+
+       	uint32_t htonl(uint32_t hostlong);
+
+	converts the unsigned integer hostlong from host byte order to network byte order.
+
+       	uint16_t htons(uint16_t hostshort);
+
+	converts the unsigned short integer hostshort from host byte order to network byte order.
+
+       	uint32_t ntohl(uint32_t netlong);
+
+	converts the unsigned integer netlong from network byte order to host byte order.
+
+       	uint16_t ntohs(uint16_t netshort);
+
+	converts the unsigned short integer netshort from network byte order to host byte order.
+
+select : #include <sys/select.h>
+
+	int select(int nfds, fd_set *readfds, fd_set *writefds, fd_set *exceptfds, struct(1) timeval *timeout);
+
+	select()  allows a program to monitor multiple file descriptors
+
+poll : #include <poll.h>
+
+	int poll(struct(2) pollfd *fds, nfds_t nfds, int timeout);
+
+
+epoll, epoll_create epoll_ctl, epoll_wait : #include <sys/epoll.h>
+
+	monitoring multiple file descriptors to see if I/O is possible on any of them
+
+	1. 	int epoll_create(int size);
+
+		epoll_create(2)  creates  a  new  epoll  instance  and  returns a file descriptor referring to that instance
+
+	2.	int epoll_ctl(int epfd, int op, int fd, struct(3) epoll_event *event);
+
+		add, modify, or remove list of the epoll instance referred by file descriptor epfd
+		requests that op be performed for fd
+		op :
+		- EPOLL_CTL_ADD
+              		Add an entry to the interest list of the epoll file descriptor, epfd.
+              		The entry includes the file descriptor, fd, a  reference to the corresponding open file description
+        	- EPOLL_CTL_MOD
+              		Change the settings associated with fd in the interest list to the new settings specified in event.
+       		- EPOLL_CTL_DEL
+              		Remove  (deregister)  the target file descriptor fd from the interest list.
+              		The event argument is ignored and can be NULL
+
+	3.	int epoll_wait(int epfd, struct(3) epoll_event *events, int maxevents, int timeout);
+
+		The  epoll_wait()  system  call  waits  for  events
+
+kqueue (kqueue, kevent) : kernel evemt ?
+
+socket : #include <sys/socket.h>
+
+	int socket(int domain, int type, int protocol);
+
+	socket()  creates  an endpoint for communication and returns a file descriptor that refers to that endpoint.
+	The file descriptor returned by a successful call will be the lowest-numbered file descriptor not currently open for the process.
+
+	Name         Purpose                                    Man page
+       	AF_UNIX      Local communication                        unix(7)
+       	AF_LOCAL     Synonym for AF_UNIX
+       	AF_INET      IPv4 Internet protocols                    ip(7)
+       	AF_AX25      Amateur radio AX.25 protocol               ax25(4)
+       	AF_IPX       IPX - Novell protocols
+       	AF_APPLETALK AppleTalk                                  ddp(7)
+       	AF_X25       ITU-T X.25 / ISO-8208 protocol             x25(7)
+       	AF_INET6     IPv6 Internet protocols                    ipv6(7)
+       	AF_DECnet    DECet protocol sockets
+       	AF_KEY       Key  management protocol, originally de‐
+                    veloped for usage with IPsec
+       	AF_NETLINK   Kernel user interface device               netlink(7)
+       	AF_PACKET    Low-level packet interface                 packet(7)
+       	AF_RDS       Reliable Datagram Sockets (RDS) protocol   rds(7)
+                                                               rds-rdma(7)
+       	AF_PPPOX     Generic PPP transport layer, for setting
+                    up L2 tunnels (L2TP and PPPoE)
+       	AF_LLC       Logical  link  control  (IEEE 802.2 LLC)
+                    protocol
+       	AF_IB        InfiniBand native addressing
+       	AF_MPLS      Multiprotocol Label Switching
+       	AF_CAN       Controller Area Network  automotive  bus
+                    protocol
+       	AF_TIPC      TIPC, "cluster domain sockets" protocol
+       	AF_BLUETOOTH Bluetooth low-level socket protocol
+       	AF_ALG       Interface to kernel crypto API
+       	AF_VSOCK     VSOCK   (originally  "VMWare  VSockets")   vsock(7)
+                    protocol for hypervisor-guest communica‐
+                    tion
+       	AF_KCM       KCM  (kernel connection multiplexer) in‐
+                    terface
+       	AF_XDP       XDP (express data path) interface
+
+accept : #include <sys/socket.h>
+
+	int accept(int sockfd, struct(4) sockaddr *addr, socklen_t *addrlen);
+
+	used with connection-based socket types (SOCK_STREAM, SOCK_SEQPACKET).
+	It extracts the first connection request on the queue of pending connections for the listening socket, sockfd,
+	creates a new connected socket, and returns a new  file  descriptor  referring  to  that  socket.
+	The newly created socket is not in the listening state. The original socket sockfd is unaffected by this call
+
+listen : #include <sys/socket.h>
+
+	int listen(int sockfd, int backlog);
+
+	listen()  marks  the  socket referred to by sockfd as a passive socket, that is,
+	as a socket that will be used to accept incoming connection requests using accept(2).
+	The sockfd argument is a file descriptor that refers to a socket of type SOCK_STREAM or SOCK_SEQPACKET.
+
+       	The backlog argument defines the maximum length to which the queue of pending connections for sockfd may grow.
+       	If  a  connection request  arrives when the queue is full,
+       	the client may receive an error with an indication of ECONNREFUSED or, if the underlying
+       	protocol supports retransmission, the request may be ignored so that a later reattempt at connection succeeds.
+
+send : #include <sys/socket.h>
+
+	ssize_t send(int sockfd, const void *buf, size_t len, int flags);
+
+	transmit a message to another socket
+	The  send()  call  may  be used only when the socket is in a connected state
+
+recv : #include <sys/socket.h>
+
+	ssize_t recv(int sockfd, void *buf, size_t len, int flags);
+
+	used to receive messages from a socket
+
+
+bind : #include <sys/socket.h>
+
+	int bind(int sockfd, const struct(4) sockaddr *addr, socklen_t addrlen);
+
+	When  a  socket  is created with socket(2), it exists in a name space (address family) but has no address assigned to it.
+	bind() assigns the address specified by addr to the socket referred to by the file descriptor sockfd.
+
+connect : #include <sys/socket.h>
+
+	int connect(int sockfd, const struct(4) sockaddr *addr, socklen_t addrlen);
+
+	connects the socket referred to by the file descriptor sockfd to the address specified by addr
+
+getaddrinfo : #include <sys/socket.h>
+
+	int getaddrinfo(const char *node, const char *service, const struct(5) addrinfo *hints, struct(5) addrinfo **res);
+
+	returns one or more addrinfo structures,
+       	each of which contains an Internet address that can be specified in a call to bind(2) or connect(2)
+
+freeaddrinfo : #include <sys/socket.h>
+
+	void freeaddrinfo(struct(5) addrinfo *ai);
+
+	The freeaddrinfo() function shall free one or more addrinfo structures returned by getaddrinfo()
+
+setsockopt : #include <sys/socket.h>
+
+	int setsockopt(int sockfd, int level, int optname, const void *optval, socklen_t optlen);
+
+	manipulate options for the socket referred to by the file descriptor sockfd
+
+getsockname : #include <sys/socket.h>
+
+	int getsockname(int sockfd, struct(4) sockaddr *addr, socklen_t *addrlen);
+
+	returns the current address to which the socket sockfd is bound, in the buffer pointed to by addr.
+
+getprotobyname : #include <netdb.h>
+
+	struct(6) protoent *getprotobyname(const char *name);
+
+	returns a protoent structure for the entry from the database that matches the protocol name.
+       	A connection is opened to the database if necessary.
+
+
+
+#########################################
+
+/////////////////////////////////////////
+
+########## PIPEX FD PID ETC #############
+
+open, close, read, write, access : #include <unistd.h> #include <fcntl.h>
+
+	int close(int fd);
+	int open(const char *pathname, int flags, mode_t mode);
+	ssize_t write(int fd, const void *buf, size_t count);
+	ssize_t read(int fd, void *buf, size_t count);
+	int access(const char *pathname, int mode);
+
+
+execve : #include <unistd.h>
+
+	int execve(const char *pathname, char *const argv[],
+                  char *const envp[]);
+
+pipe : #include <unistd.h>
+
+	int pipe(int pipefd[2]);
+
+dup, dup2 : #include <unistd.h>
+
+	int dup(int oldfd);
+	int dup2(int oldfd, int newfd);
+
+
+fork : #include <unistd.h>
+
+	pid_t fork(void);
+
+waitpid : #include <sys/wait.h>
+
+	pid_t waitpid(pid_t pid, int *status, int options);
+
+stat : #include <unistd.h>
+
+	int stat(const char *path, struct(7) stat *buf);
+
+	return file infos
+
+fcntl : #include <fcntl.h>
+
+	int fcntl(int fd, int cmd, ... /* arg */ );
+
+	fcntl() performs one of the operations described below on the open file descriptor fd.
+	The operation is determined by cmd.
+
+
+##############################
+
+//////////////////////////////
+
+########### SIGNAUX ##########
+
+kill : #include <signal.h>
+
+	int kill(pid_t pid, int sig);
+
+	kill pid process
+
+signal : #include <signal.h>
+
+	sighandler_t signal(int signum, sighandler_t handler);
+
+	sets the disposition of the signal signum to handler
+
+##############################
+
+//////////////////////////////
+
+########### DIRECTORY ########
+
+chdir
+opendir
+readdir
+closedir
+
+##############################
+
+//////////////////////////////
+
+########## STRUCTS ###########
+
+1.
+struct timeval {
+    	long    tv_sec;         /* secondes      */
+    	long    tv_usec;        /* microsecondes */
+};
+
+
+2.
+struct pollfd {
+    	int   fd;         /* Descripteur de fichier */
+    	short events;     /* Événements attendus    */
+    	short revents;    /* Événements détectés    */
+};
+
+
+3.
+struct epoll_event {
+	uint32_t      events;  /* Epoll events */
+        epoll_data_t  data;    /* User data variable */
+};
+
+union epoll_data {
+	void     *ptr;
+	int       fd;
+	uint32_t  u32;
+	uint64_t  u64;
+};
+
+
+4.
+struct sockaddr {
+	sa_family_t     sa_family;      /* Address family */ sa_family_t is an unsigned short
+	char            sa_data[];      /* Socket address */
+};
+
+
+5.
+struct addrinfo {
+    int              ai_flags;
+    int              ai_family;
+    int              ai_socktype;
+    int              ai_protocol;
+    size_t           ai_addrlen;
+    struct sockaddr *ai_addr;
+    char            *ai_canonname;
+    struct addrinfo *ai_next;
+};
+
+
+6.
+struct protoent {
+    char  *p_name;       /* official protocol name */
+    char **p_aliases;    /* alias list */
+    int    p_proto;      /* protocol number */
+}
+
+
+7.
+struct stat {
+    dev_t     st_dev;      /* ID du périphérique contenant le fichier */
+    ino_t     st_ino;      /* Numéro inœud */
+    mode_t    st_mode;     /* Protection */
+    nlink_t   st_nlink;    /* Nb liens matériels */
+    uid_t     st_uid;      /* UID propriétaire */
+    gid_t     st_gid;      /* GID propriétaire */
+    dev_t     st_rdev;     /* ID périphérique (si fichier spécial) */
+    off_t     st_size;     /* Taille totale en octets */
+    blksize_t st_blksize;  /* Taille de bloc pour E/S */
+    blkcnt_t  st_blocks;   /* Nombre de blocs alloués */
+    time_t    st_atime;    /* Heure dernier accès */
+    time_t    st_mtime;    /* Heure dernière modification */
+    time_t    st_ctime;    /* Heure dernier changement état */
+};
+
+#######################################
+
+///////////////////////////////////////
+
+############ INCLUDES #################
+
+#include <string.h>
+#include <sys/socket.h>
+#include <arpa/inet.h>
+#include <netdb.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <signal.h>
+
+#include <sys/select.h>
+#include <poll.h>
+#include <sys/epoll.h>
